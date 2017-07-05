@@ -77,10 +77,6 @@ int main(int argc, char *argv[]) {
         *Palavra = '\0';
     }
     
-    
-    
-    
-    
     while (fscanf(keywords, "%s", &palavra))
     {
         InicializaTipoItem(palavra);
