@@ -2,116 +2,87 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#define VAZIO  "!!!!!!!!!!"
-#define RETIRADO  "**********"
-#define N 100
+#include "hash.h"
 
-typedef unsigned int TipoApontador;
-typedef char TipoChave[N];
-typedef unsigned TipoPesos[N];
-
-typedef struct TipoItem {
-    /* outros componentes */
-    TipoChave Chave;
-} TipoItem;
-typedef unsigned int TipoIndice;
-typedef TipoItem TipoDicionario[M];
-TipoDicionario Tabela;
-TipoPesos p;
-TipoItem Elemento;
-FILE *arq;
-int j, i;
-
-void GeraPesos(TipoPesos p) { /* -Gera valores randomicos entre 1 e 10.000- */
+int GeraPesos()
+{
+    int p[MAXSIZE];
     int i;
     struct timeval semente;
-    /* Utilizar o tempo como semente para a funcao srand() */
     gettimeofday(&semente, NULL);
     srand((int) (semente.tv_sec + 1000000 * semente.tv_usec));
-    for (i = 0; i < N; i++)
+
+    for (i = 0; i < MAXCHAVE; i++)
+    {
         p[i] = 1 + (int) (10000.0 * rand() / (RAND_MAX + 1.0));
-}
-
-TipoIndice h(TipoChave Chave, TipoPesos p) {
-    int i;
-    unsigned int Soma = 0;
-    int comp = strlen(Chave);
-    for (i = 0; i < comp; i++)
-        Soma += (unsigned int) Chave[i] * p[i];
-    return (Soma % M);
-}
-
-void Inicializa(TipoDicionario T) {
-    int i;
-    for (i = 0; i < M; i++) memcpy(T[i].Chave, VAZIO, N);
-}
-
-TipoApontador Pesquisa(TipoChave Ch, TipoPesos p, TipoDicionario T) {
-    unsigned int i = 0;
-    unsigned int Inicial;
-    Inicial = h(Ch, p);
-    while (strcmp(T[(Inicial + i) % M].Chave, VAZIO) != 0 &&
-            strcmp(T[(Inicial + i) % M].Chave, Ch) != 0 && i < M)
-        i++;
-    if (strcmp(T[(Inicial + i) % M].Chave, Ch) == 0)
-        return ((Inicial + i) % M);
-    else return M; /* Pesquisa sem sucesso */
-}
-
-void Insere(TipoItem x, TipoPesos p, TipoDicionario T) {
-    unsigned int i = 0;
-    unsigned int Inicial;
-    if (Pesquisa(x.Chave, p, T) < M) {
-        printf("Elemento ja esta presente\n");
-        return;
-    }
-    Inicial = h(x.Chave, p);
-    while (strcmp(T[(Inicial + i) % M].Chave, VAZIO) != 0 &&
-            strcmp(T[(Inicial + i) % M].Chave, RETIRADO) != 0 && i < M)
-        i++;
-    if (i < M) {
-        strcpy(T[(Inicial + i) % M].Chave, x.Chave);
-        /* Copiar os demais campos de x, se existirem */
-    } else printf(" Tabela cheia\n");
-}
-
-void Retira(TipoChave Ch, TipoPesos p, TipoDicionario T) {
-    TipoIndice i;
-    i = Pesquisa(Ch, p, T);
-    if (i < M)
-        memcpy(T[i].Chave, RETIRADO, N);
-    else printf("Registro nao esta presente\n");
-}
-
-void Imprime(TipoDicionario tabela) {
-    int i, j, tam;
-    for (i = 0; i < M; i++) {
-        printf("%d  ", i);
-        tam = strlen(tabela[i].Chave);
-        for (j = 0; j < tam; j++)
-            putchar(tabela[i].Chave[j]);
-        putchar('\n');
-    }
-} /* Imprime */
-
-void LerPalavra(char *p, int Tam) {
-    char c;
-    int i, j;
-    fflush(stdin);
-    j = 0;
-    while (((c = getchar()) != '\n') && (j < (Tam - 1))) p[j++] = c;
-    p[j] = '\0';
-    while (c != '\n') c = getchar();
-    /* Desconsiderar espacos ao final da cadeia como ocorre no Pascal.*/
-    for (i = j - 1; (i >= 0 && p[i] == ' '); i--) p[i] = '\0';
-}
-
-TipoItem* InicializaTipoItem(char *palavra)
-{
-    TipoItem* novo = malloc(sizeof(TipoItem));
-    int tam = strlen(palavra);
-    novo->Chave = malloc(tam*sizeof(TipoChave));
-    strcpy(novo->Chave, palavra);
     
-    return novo;
+        
+        return p;
+}
+
+void Inicializa(Hash H)
+{
+    for (int i = 0; i < MAXSIZE; i++)
+    {
+        H[i] = NULL;
+    }
+}
+
+Reg* InicializaRegistro(char *chave)
+{
+    Reg* reg = (Reg*) malloc(sizeof (Reg));
+
+    reg->chave = strdup(chave);
+    reg->index = malloc(sizeof (int)*10);
+    reg->indexPosition = 0;
+    reg->indexSize = 10;
+
+    return reg;
+}
+
+void Insere(Hash H, Reg *registro)
+{
+    if (Busca(H, registro->chave) != NULL)
+    {
+        printf("Registro ja existe na tabela\n");
+        exit(0);
+    }
+    
+    int h = HashFunction(registro->chave);
+    H[h] = registro;
+
+    return;
+}
+
+Reg* Busca(Hash H, char *chave)
+{
+    int h = HashFunction(chave);
+
+    while (H[h] != NULL)
+    {
+        if (strcmp(H->chave, chave) == 0)
+        {
+            return H[h];
+        }
+
+        h = (h + 1) % MAXCHAVE;
+    }
+
+    return NULL;
+}
+
+int HashFunction(char *chave)
+{
+    int i;
+    int soma = 0;
+    int comp = strlen(chave);
+    
+    int pesos[] = GeraPesos();
+
+    for (i = 0; i < comp; i++)
+    {
+        soma += (int) chave[i] * pesos[i];
+    }
+
+    return (soma % MAXSIZE);
 }

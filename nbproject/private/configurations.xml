@@ -28,8 +28,15 @@
         <runcommandpicklist>
           <runcommandpicklistitem>"${OUTPUT_PATH}"</runcommandpicklistitem>
           <runcommandpicklistitem>"${OUTPUT_PATH}" teste.txt alfabeto.txt</runcommandpicklistitem>
+          <runcommandpicklistitem>"${OUTPUT_PATH}" texto.txt alfabeto.txt</runcommandpicklistitem>
+          <runcommandpicklistitem>"${OUTPUT_PATH}" teste.txt key.txt</runcommandpicklistitem>
+          <runcommandpicklistitem>"${OUTPUT_PATH}" teste.txt key.txt alfabeto.txt
+</runcommandpicklistitem>
+          <runcommandpicklistitem>"${OUTPUT_PATH}" teste.txt key.txt alfabeto.txt</runcommandpicklistitem>
+          <runcommandpicklistitem>"${OUTPUT_PATH}" texto.txt key.txt alfabeto.txt</runcommandpicklistitem>
+          <runcommandpicklistitem>"${OUTPUT_PATH}" texto.txt palavras_chave.txt alfabeto.txt</runcommandpicklistitem>
         </runcommandpicklist>
-        <runcommand>"${OUTPUT_PATH}" teste.txt alfabeto.txt</runcommand>
+        <runcommand>"${OUTPUT_PATH}" texto.txt palavras_chave.txt alfabeto.txt</runcommand>
         <rundir></rundir>
         <buildfirst>true</buildfirst>
         <console-type>1</console-type>

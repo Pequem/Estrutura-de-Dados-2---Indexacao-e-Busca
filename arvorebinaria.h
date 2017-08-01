@@ -6,24 +6,23 @@
 
 /* 
  * File:   arvorebinaria.h
- * Author: rodri
+ * Author: Eduarda
  *
- * Created on 4 de Julho de 2017, 16:21
+ * Created on 8 de Julho de 2017, 11:16
  */
 
 #ifndef ARVOREBINARIA_H
 #define ARVOREBINARIA_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+typedef struct Node* NodePointer;
+typedef struct Node;
+typedef struct registro* Registro;
+typedef struct registro;
 
 
-
-
-#ifdef __cplusplus
-}
-#endif
+NodePointer InicializaArvore();
+void Insere(NodePointer*, Registro);
+void Imprime(NodePointer);
 
 #endif /* ARVOREBINARIA_H */
 

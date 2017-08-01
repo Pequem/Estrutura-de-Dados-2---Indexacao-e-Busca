@@ -1,34 +1,25 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/* 
- * File:   hash.h
- * Author: rodri
- *
- * Created on 4 de Julho de 2017, 16:21
- */
-
 #ifndef HASH_H
 #define HASH_H
 
-void GeraPesos(TipoPesos p);
+#define MAXSIZE 257
+#define MAXCHAVE 100
 
-TipoIndice h(TipoChave Chave, TipoPesos p);
+typedef struct reg Reg;
+struct reg
+{
+    char chave[MAXCHAVE];
+    int* index;
+    int indexPosition;
+    int indexSize;
+    int peso;
+};
 
-void Inicializa(TipoDicionario T);
+typedef Reg* Hash[MAXSIZE];
 
-TipoApontador Pesquisa(TipoChave Ch, TipoPesos p, TipoDicionario T);
+void Inicializa(Hash H);
+Reg* InicializaRegistro(char *chave);
+void Insere(Hash H, Reg *registro);
+Reg* Busca(Hash H, char *chave);
+int HashFunction(char *chave);
 
-void Insere(TipoItem x, TipoPesos p, TipoDicionario T);
-
-void Retira(TipoChave Ch, TipoPesos p, TipoDicionario T);
-
-void Imprime(TipoDicionario tabela);
-
-void LerPalavra(char *p, int Tam);
-
-#endif /* HASH_H */
-
+#endif /* ARVOREBINARIA_H */

@@ -1,145 +1,106 @@
-#include <stdlib.h>
 #include <stdio.h>
-#include <limits.h>
-#include <sys/time.h>
+#include <stdlib.h>
+#include <string.h>
+#include "arvorebinaria.h"
 
-#define MAX  10
+struct Node {
+    Registro reg;
+    NodePointer Esq;
+    NodePointer Dir;
+} Node;
 
-typedef long TipoChave;
-typedef struct TipoRegistro {
-  TipoChave Chave;
-  /* outros componentes */
-} TipoRegistro;
-typedef struct TipoNo * TipoApontador;
-typedef struct TipoNo {
-  TipoRegistro Reg;
-  TipoApontador Esq, Dir;
-} TipoNo;
-typedef TipoApontador TipoDicionario;
+struct registro {
+    char* chave;
+    int* index;
+    int indexPosition;
+    int indexSize;
+} registro;
 
-void Pesquisa(TipoRegistro *x, TipoApontador *p)
-{ 
-    if (*p == NULL) 
-    { printf("Erro: Registro nao esta presente na arvore\n");
-      return;
-    }
-    if (x->Chave < (*p)->Reg.Chave) 
-    { Pesquisa(x, &(*p)->Esq);
-      return;
-    }
-    if (x->Chave > (*p)->Reg.Chave)
-    Pesquisa(x, &(*p)->Dir);
-    else *x = (*p)->Reg;
-} 
-
-void Insere(TipoRegistro x, TipoApontador *p)
-{ 
-    if (*p == NULL) 
-    { *p = (TipoApontador)malloc(sizeof(TipoNo));
-      (*p)->Reg = x; 
-      (*p)->Esq = NULL; 
-      (*p)->Dir = NULL;
-      return;
-    }
-    if (x.Chave < (*p)->Reg.Chave) 
-    { Insere(x, &(*p)->Esq); 
-      return; 
-    }
-    if (x.Chave > (*p)->Reg.Chave)
-    Insere(x, &(*p)->Dir);
-    else printf("Erro : Registro ja existe na arvore\n");
-} 
-
-void Inicializa(TipoApontador *Dicionario)
-{ 
-    *Dicionario = NULL;
+int vazia(NodePointer arvore) {
+    return arvore == NULL;
 }
 
-void Antecessor(TipoApontador q, TipoApontador *r)
-{ 
-    if ((*r)->Dir != NULL) 
-    { Antecessor(q, &(*r)->Dir);
-      return;
-    }
-    q->Reg = (*r)->Reg;
-    q = *r; 
-    *r = (*r)->Esq;
-    free(q);
-} 
+NodePointer InicializaArvore() {
+    NodePointer arvore = (struct Node*) malloc(sizeof (struct Node));
+    arvore->reg = NULL;
+    arvore->Esq = NULL;
+    arvore->Dir = NULL;
 
-void Retira(TipoRegistro x, TipoApontador *p)
-{  
-    TipoApontador Aux;
-    if (*p == NULL) 
-    { printf("Erro : Registro nao esta na arvore\n");
-      return;
-    }
-    if (x.Chave < (*p)->Reg.Chave) { Retira(x, &(*p)->Esq); return; }
-    if (x.Chave > (*p)->Reg.Chave) { Retira(x, &(*p)->Dir); return; }
-    if ((*p)->Dir == NULL) 
-    { Aux = *p;  *p = (*p)->Esq;
-      free(Aux);
-      return;
-    }
-    if ((*p)->Esq != NULL) 
-    { Antecessor(*p, &(*p)->Esq);
-      return;
-    }
-    Aux = *p;  *p = (*p)->Dir;
-    free(Aux);
-}  
-
-void Central(TipoApontador p)
-{ 
-    if (p == NULL) return;
-    Central(p->Esq);
-    printf("%ld\n", p->Reg.Chave);
-    Central(p->Dir);
-} 
-
-void TestaI(TipoNo *p, int pai)
-{ 
-    if (p == NULL) return;
-    if (p->Esq != NULL) 
-    { 
-        if (p->Reg.Chave < p->Esq->Reg.Chave) 
-        { printf("Erro: Pai %ld menor que filho a esquerda %ld\n", p->Reg.Chave, 
-                 p->Esq->Reg.Chave);
-          exit(1);
-        }
-    }
-    if (p->Dir != NULL) 
-    { 
-        if (p->Reg.Chave > p->Dir->Reg.Chave) 
-        { printf("Erro: Pai %ld maior que filho a direita %ld\n",  p->Reg.Chave, 
-                 p->Dir->Reg.Chave);
-        exit(1);
-        }
-    }
-    
-    TestaI(p->Esq, p->Reg.Chave);
-    TestaI(p->Dir, p->Reg.Chave);
+    return arvore;
 }
 
-
-void Testa(TipoNo *p)
-{ 
-    if (p != NULL)
-    TestaI(p, p->Reg.Chave);
+Registro InicializaRegistro(char* chave) {
+    Registro reg = malloc(sizeof (struct registro));
+    reg->chave = strdup(chave);
+    reg->index = malloc(sizeof (int)*10);
+    reg->indexPosition = 0;
+    reg->indexSize = 10;
+    return reg;
 }
 
-double rand0a1() {
-  double resultado=  (double) rand()/ RAND_MAX; /* Dividir pelo maior inteiro */
-  if(resultado>1.0) resultado = 1.0;
-  return resultado;
-}
+void Insere(NodePointer *arvore, Registro reg) {
 
-void Permut( TipoChave A[], int n) {
-  int i,j; TipoChave b;
-  for(i = n; i>0; i --) 
-    { j = (i * rand0a1());
-      b = A[i];
-      A[i] = A[j];
-      A[j] = b;
+    if (vazia((*arvore))) {
+        *arvore = InicializaArvore();
+
+        (*arvore)->reg = reg;
+        //printf("%s inserida!\n", (*arvore)->reg->chave);
+
+        return;
     }
+
+    if (strcmp(reg->chave, (*arvore)->reg->chave) < 0) {
+        Insere(&(*arvore)->Esq, reg);
+        return;
+    }
+    if (strcmp(reg->chave, (*arvore)->reg->chave) > 0) {
+        Insere(&(*arvore)->Dir, reg);
+        return;
+    } else {
+        //printf("Erro : Registro ja existe na arvore\n");
+    }
+}
+
+void Imprime(NodePointer arvore) {
+    if (arvore != NULL) {
+        Imprime(arvore->Esq);
+        PrintReg(arvore->reg);
+        Imprime(arvore->Dir);
+
+    }
+}
+
+Registro Pesquisa(char* chave, NodePointer *p) {
+    if (*p == NULL) {
+        //printf("Erro: Registro nao esta presente na arvore\n");
+        return NULL;
+    }
+    if (strcmp(chave, (*p)->reg->chave) < 0) {
+        return Pesquisa(chave, &(*p)->Esq);
+    }
+    if (strcmp(chave, (*p)->reg->chave) > 0)
+        return Pesquisa(chave, &(*p)->Dir);
+    else return (*p)->reg;
+}
+
+void PrintReg(Registro reg) {
+    int i;
+    printf("%s ", reg->chave);
+    for (i = 0; i < reg->indexPosition; i++) {
+        printf("%i ", reg->index[i]);
+    }
+    printf("\n");
+}
+
+void RegistraIndice(Registro reg, int linha) {
+    if (reg == NULL) {
+        return;
+    }
+    if (reg->indexPosition >= reg->indexSize) {
+        reg->index = realloc(reg->index, sizeof (int)*(reg->indexSize + 10));
+        reg->indexSize += 10;
+    }
+    if (reg->index[reg->indexPosition - 1] == linha) return;
+    reg->index[reg->indexPosition] = linha;
+    reg->indexPosition++;
 }
